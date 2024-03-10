@@ -3,7 +3,7 @@ from setuptools import setup, find_packages
 
 HERE = pathlib.Path(__file__).parent
 
-VERSION = "0.0.2"
+VERSION = "0.0.3"
 PACKAGE_NAME = "rusty-forms"
 AUTHOR = "Franz Geffke"
 AUTHOR_EMAIL = "m@f-a.nz"
@@ -13,7 +13,7 @@ DESCRIPTION = "Python library that makes working with Rusty Forms a breeze"
 LONG_DESCRIPTION = (HERE / "README.md").read_text()
 LONG_DESC_TYPE = "text/markdown"
 
-INSTALL_REQUIRES = ["requests", "nostr"]
+INSTALL_REQUIRES = ["requests", "nostr", "platformdirs"]
 
 setup(
     name=PACKAGE_NAME,

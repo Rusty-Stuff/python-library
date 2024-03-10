@@ -3,24 +3,7 @@ import json
 from nostr.key import PrivateKey, PublicKey
 from nostr.event import Event
 from .helper import make_form, make_message, make_form_recipient, make_default_headers
-
-
-class RustyAPIConfig:
-    base_url: str
-    private_key: PrivateKey
-    public_key: PublicKey
-    timeout: int = 5
-
-    def __init__(
-        self,
-        private_key: PrivateKey,
-        base_url: str = "https://api.rusty-forms.com/v1",
-        timeout: int = 5,
-    ):
-        self.base_url = base_url
-        self.private_key = private_key
-        self.public_key = private_key.public_key()
-        self.timeout = timeout
+from .config import RustyAPIConfig
 
 
 class RustyAPI:
@@ -38,17 +21,11 @@ class RustyAPI:
         self.public_key = cfg.public_key
         self.timeout = cfg.timeout
 
-    def _make_std_headers(self):
-        return {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.access_token}",
-        }
-
     def login_request(self):
         """Send login request; Expect 200"""
         res = requests.post(
             self.base_url + "/login",
-            headers=self._make_std_headers(),
+            headers=make_default_headers(),
             data=json.dumps({"public_key": self.public_key.hex()}),
             timeout=5,
         )
@@ -113,6 +90,11 @@ class RustyAPI:
             self.is_logged_in = True
 
         return data
+
+    def login(self):
+        """Login; Expect 200"""
+        login_response = self.login_request()
+        return self.solve_login_challenge(login_response)
 
     def logout(self):
         """Send logout request; Expect 200"""
@@ -421,3 +403,18 @@ class RustyAPI:
             raise Exception("Unexpected status code")
 
         return None
+
+    def account_balance(self):
+        """Get account balance; Expect 200"""
+        res = requests.get(
+            self.base_url + "/a/balance",
+            headers=make_default_headers(self.access_token),
+            timeout=5,
+        )
+
+        res.raise_for_status()
+
+        if res.status_code != 200:
+            raise Exception("Unexpected status code")
+
+        return res.json()
