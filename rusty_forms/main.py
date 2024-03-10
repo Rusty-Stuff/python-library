@@ -1,22 +1,30 @@
 import requests
 import json
-from dataclasses import dataclass
-from typing import Union
 from nostr.key import PrivateKey, PublicKey
 from nostr.event import Event
 from .helper import make_form, make_message, make_form_recipient, make_default_headers
 
 
-@dataclass
 class RustyAPIConfig:
     base_url: str
     private_key: PrivateKey
     public_key: PublicKey
     timeout: int = 5
 
+    def __init__(
+        self,
+        private_key: PrivateKey,
+        base_url: str = "https://api.rusty-forms.com/v1",
+        timeout: int = 5,
+    ):
+        self.base_url = base_url
+        self.private_key = private_key
+        self.public_key = private_key.public_key()
+        self.timeout = timeout
+
 
 class RustyAPI:
-    base_url = "http://localhost:8080/v1"
+    base_url = "https://api.rusty-forms.com/v1"
     private_key = PrivateKey
     public_key = PublicKey
     timeout = 5
