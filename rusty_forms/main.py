@@ -1,32 +1,37 @@
 import requests
 import json
-from nostr.key import PrivateKey, PublicKey
-from nostr.event import Event
+from typing import Union
+
+
+from .auth import NostrAuthApiConfig, EmailAuthApiConfig
 from .helper import make_form, make_message, make_form_recipient, make_default_headers
-from .config import RustyAPIConfig
 
 
 class RustyAPI:
-    base_url = "https://api.rusty-forms.com/v1"
-    private_key = PrivateKey
-    public_key = PublicKey
-    timeout = 5
+    base_url: str
+    timeout: int
+
+    auth = Union[NostrAuthApiConfig, EmailAuthApiConfig]
 
     is_logged_in = False
     access_token = None
 
-    def __init__(self, cfg: RustyAPIConfig):
-        self.base_url = cfg.base_url
-        self.private_key = cfg.private_key
-        self.public_key = cfg.public_key
-        self.timeout = cfg.timeout
+    def __init__(
+        self,
+        auth: Union[NostrAuthApiConfig, EmailAuthApiConfig],
+        base_url: str = "https://api.rusty-forms.com/v1",
+        timeout: int = 10,
+    ):
+        self.auth = auth
+        self.base_url = base_url
+        self.timeout = timeout
 
     def login_request(self):
         """Send login request; Expect 200"""
         res = requests.post(
             self.base_url + "/login",
             headers=make_default_headers(),
-            data=json.dumps({"public_key": self.public_key.hex()}),
+            data=json.dumps(self.auth.make_login_request()),
             timeout=5,
         )
 
@@ -43,33 +48,10 @@ class RustyAPI:
         """Solve login challenge; Expect 200
         - provides access_token
         """
-        challenge = login_response["challenge"]
-
-        challenge_event = Event(
-            public_key=self.public_key.hex(),
-            content="",
-            kind=22242,
-            tags=[["relay", self.base_url], ["challenge", challenge]],
+        challenge_response = self.auth.make_login_challenge_response(
+            self.base_url, login_response
         )
-
-        self.private_key.sign_event(challenge_event)
-
-        response_data = {
-            "NOSTR": {
-                "id": login_response["id"],
-                "response": {
-                    "id": challenge_event.id,
-                    "pubkey": challenge_event.public_key,
-                    "created_at": challenge_event.created_at,
-                    "kind": challenge_event.kind,
-                    "tags": challenge_event.tags,
-                    "content": challenge_event.content,
-                    "sig": challenge_event.signature,
-                },
-            }
-        }
-
-        response_json = json.dumps(response_data)
+        response_json = json.dumps(challenge_response)
 
         res = requests.post(
             self.base_url + "/login/challenge",

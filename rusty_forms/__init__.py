@@ -1,1 +1,2 @@
-from .main import RustyAPIConfig, RustyAPI, PrivateKey, PublicKey
+from .main import RustyAPI
+from .auth import NostrAuthApiConfig, EmailAuthApiConfig, PrivateKey, PublicKey

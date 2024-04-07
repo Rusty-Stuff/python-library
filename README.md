@@ -15,13 +15,13 @@ pip install https://github.com/Rusty-Stuff/python-library
 #### Login (& Signup)
 
 ```python
-from rusty-forms import RustyAPI, RustyAPIConfig, PrivateKey
+from rusty-forms import RustyAPI, NostrAuthApiConfig
 
-config = RustyAPIConfig()
-config.generate_keys()
-config.save()
+auth = NostrAuthApiConfig()
+auth.generate_keys()
+auth.save()
 
-api = RustyAPI(config)
+api = RustyAPI(auth)
 api.login()
 ```
 

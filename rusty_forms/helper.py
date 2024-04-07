@@ -31,3 +31,13 @@ def make_default_headers(access_token: Union[None, str] = None):
         headers["Authorization"] = f"Bearer {access_token}"
 
     return headers
+
+
+def save_file(path, data):
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(data)
+
+
+def load_file(path):
+    with open(path, "r", encoding="utf-8") as f:
+        return f.read()
