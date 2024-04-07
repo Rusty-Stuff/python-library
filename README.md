@@ -123,9 +123,9 @@ This library will save your private key in a file. Feel free to supplement a mor
 
 ```python
 from nostr.key import PrivateKey
-from rusty_forms import RustyAPIConfig
+from rusty_forms import NostrAuthApiConfig
 
 # your own method to get the key
 private_key = PrivateKey(key)
-config = RustyAPIConfig(private_key=private_key)
+auth = NostrAuthApiConfig(private_key=private_key)
 ```
