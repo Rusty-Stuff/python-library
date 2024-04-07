@@ -36,7 +36,7 @@ class NostrAuthApiConfig:
         }
 
     def make_login_challenge_response(self, base_url: str, login_response):
-        challenge = login_response["challenge"]
+        challenge = login_response["NOSTR"]["challenge"]
 
         challenge_event = Event(
             public_key=self.public_key.hex(),
@@ -49,7 +49,7 @@ class NostrAuthApiConfig:
 
         response_data = {
             "NOSTR": {
-                "id": login_response["id"],
+                "id": login_response["NOSTR"]["id"],
                 "response": {
                     "id": challenge_event.id,
                     "pubkey": challenge_event.public_key,
@@ -102,10 +102,10 @@ class EmailAuthApiConfig:
 
         return {
             "EMAIL": {
-                "id": login_response["id"],
+                "id": login_response["EMAIL"]["id"],
                 "response": {
                     "email": self.email,
-                    "challenge": login_response["challenge"],
+                    "challenge": login_response["EMAIL"]["challenge"],
                 },
             }
         }
